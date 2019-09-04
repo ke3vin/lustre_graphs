@@ -9,7 +9,7 @@ Lustre statistics are collected with the Telegraf package, which runs on all of 
 
 As distributed from InfluxData, telegraf already includes an agent that will collect Lustre server metrics.  However, that agent does not collect jobstats metrics in a particularly friendly format, so I've made some local changes which are necessary if you want to be able to correlate Lustre activity to particular users or HPC jobs.
 
-The changes to telegraf are located here: https://gitlab.umd.edu/acigs-tools/telegraf.  The only changes made are to the telegraf input plugin.
+The changes to telegraf are located in the file *telegraf_lustre2_patch*.  The only changes made are to the telegraf input plugin.
 
 The configuration file for telegraf on each Lustre server appears as follows (comments stripped out for brevity).  The relevant sections of interest are outputs and lustre2.
 
@@ -225,6 +225,9 @@ ARGS="-p 2003 -w 4 -b 25000 -q 250000"
 
 Grafana is responsible for actually graphing the metrics.  It is a wsgi process that sits behind a web server (Apache).  It needs to have access to the metric storage and therefore must run on the same host as Graphite.  By default Grafana has its own authentication mechanisms, but it's somewhat limited.  I've chosen to disable the built-in authentication and instead use the much richer Apache authentication mechanism so that we can use our Kerberos authentication.  In our configuration, the server that hosts Grafana and Graphite is on a private network.  The apache server runs on a publicly accessible server, and acts as a reverse proxy to connect user requests to Grafana.
 
+You should probably install Grafana using its defaults first, and set up the admin user before playing with the proxy and alternate authentication.  When you're ready to enable alternate authentication, create a user for yourself that matches your external username, and make that user an administrator.  Then enable the external authentication.
+
+Once you've got Grafana installed and working, you'll need to import the dashboards included here to complete your collection of Lustre graphs. Some will probably need tweaking to set your local site name, and relative URLs.
 
 Here are relevant configuration files:
 
