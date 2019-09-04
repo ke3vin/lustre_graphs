@@ -1,0 +1,86 @@
+diff --combined plugins/inputs/lustre2/lustre2.go
+index 33233fc,8ef9223..0000000
+--- a/plugins/inputs/lustre2/lustre2.go
++++ b/plugins/inputs/lustre2/lustre2.go
+@@@ -24,8 -24,8 +24,8 @@@ type Lustre2 struct 
+  	Ost_procfiles []string
+  	Mds_procfiles []string
+  
+ -	// allFields maps and OST name to the metric fields associated with that OST
+ -	allFields map[string]map[string]interface{}
+ +	// allFields maps an OST name and jobid (if defined) to the metric fields associated with that OST
+ +	allFields map[string]map[string]map[string]interface{}
+  }
+  
+  var sampleConfig = `
+@@@ -365,19 -365,13 +365,19 @@@ func (l *Lustre2) GetLustreProcStats(fi
+  		 * Assumpion: the target name is always second to last,
+  		 * which is true in Lustre 2.1->2.8
+  		 */
+ +		jobid := "top"
+  		path := strings.Split(file, "/")
+  		name := path[len(path)-2]
+ -		var fields map[string]interface{}
+ -		fields, ok := l.allFields[name]
+ +		var jobids map[string]map[string]interface{}
+ +		jobids, ok := l.allFields[name]
+ +		if !ok {
+ +			jobids = make(map[string]map[string]interface{})
+ +			l.allFields[name] = jobids
+ +		}
+ +		fields, ok := l.allFields[name][jobid]
+  		if !ok {
+  			fields = make(map[string]interface{})
+ -			l.allFields[name] = fields
+ +			l.allFields[name][jobid] = fields
+  		}
+  
+  		lines, err := internal.ReadLines(file)
+@@@ -389,12 -383,7 +389,12 @@@
+  			parts := strings.Fields(line)
+  			if strings.HasPrefix(line, "- job_id:") {
+  				// Set the job_id explicitly if present
+ -				fields["jobid"] = parts[2]
+ +				jobid = parts[2]
+ +				fields, ok = l.allFields[name][jobid]
+ +				if !ok {
+ +					fields = make(map[string]interface{})
+ +					l.allFields[name][jobid] = fields
+ +				}
+  			}
+  
+  			for _, wanted := range wanted_fields {
+@@@ -434,7 -423,7 +434,7 @@@ func (l *Lustre2) Description() string 
+  
+  // Gather reads stats from all lustre targets
+  func (l *Lustre2) Gather(acc telegraf.Accumulator) error {
+ -	l.allFields = make(map[string]map[string]interface{})
+ +	l.allFields = make(map[string]map[string]map[string]interface{})
+  
+  	if len(l.Ost_procfiles) == 0 {
+  		// read/write bytes are in obdfilter/<ost_name>/stats
+@@@ -494,19 -483,17 +494,19 @@@
+  		}
+  	}
+  
+ -	for name, fields := range l.allFields {
+ +	for name, jobids := range l.allFields {
+  		tags := map[string]string{
+  			"name": name,
+  		}
+ -		if _, ok := fields["jobid"]; ok {
+ -			if jobid, ok := fields["jobid"].(string); ok {
+ +		for jobid, fields := range jobids {
+ +			if jobid != "top" {
+  				tags["jobid"] = jobid
+ +			} else {
+ +				delete (tags, "jobid")
+  			}
+ -			delete(fields, "jobid")
+ +
+ +			acc.AddFields("lustre2", fields, tags)
+  		}
+ -		acc.AddFields("lustre2", fields, tags)
+  	}
+  
+  	return nil
