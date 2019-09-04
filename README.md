@@ -1,5 +1,5 @@
 # lustre_graphs
-Docs and Files for graphing Lustre statistics with Grafana
+Docs and files for graphing Lustre statistics with Grafana
 
 ## Overview
 
@@ -66,7 +66,7 @@ interval = "30s"
 
 ## Graphite
 
-Graphite receives and stores the metrics collected by telegraf.  It is highly recommended that Graphite (and Grafana) run on a separate server, and that the filesystem where metrics are stored reside on a flash drive.  Depending on how many Lustre servers you have, Lustre generates a LOT of metrics and the backend server must be capable of storing them all as they arrive.  We are currently running the metric collection on a node with two E5-2670 processors (16 cores total), with the metric storage on an Intel 1TB SSD.  Collecting metrics for 12 OSSes and 1 MDS, and a handful of non-Lustre hosts is using about 320GB of storage.  The SSD is mounted as */opt/graphite/storage*.
+Graphite receives and stores the metrics collected by telegraf.  It is highly recommended that Graphite (and Grafana) run on a separate server, and that the filesystem where metrics are stored reside on an SSD or NVMe flash drive.  Depending on how many Lustre servers you have, Lustre generates a LOT of metrics and the backend server must be capable of storing them all as they arrive.  We are currently running the metric collection on a node with two E5-2670 processors (16 cores total), with the metric storage on an Intel 1TB SSD.  Collecting metrics for 12 OSSes and 1 MDS, and a handful of non-Lustre hosts is using about 320GB of storage.  The SSD is mounted as */opt/graphite/storage*.
 
 Graphite can be configured to run a few different processes, *carbon-cache* is the one we're using, and it's responsible for collecting the metrics and writing them to disk.  Graphite also comes with *carbon-relay* and *carbon-aggregator*.  The relay receives metrics and can redistribute them to multiple aggregators or caches.  The aggregator can combine multiple input metrics to generate summary metrics.  Those two tools as provided with Graphite are both written in python, and in practice I've found those too slow to keep up with the volume of metrics necessary.  Instead, we're using a third tool called *carbon-c-relay* which is an integrated relay and aggregation engine, that's written in C for much improved performance.
 
