@@ -344,7 +344,8 @@ If you are using selinux on the proxy server you'll need to allow httpd to make 
 The server running Graphite/Grafana works fine with selinux in enforcing mode, with no changes necessary.
 
 The proxy server works fine with selinux in enforcing mode as well, with the one change mentioned above.
-Firewall Rules
+
+## Firewall Rules
 
 On the Graphite/Grafana server you need to have port 2003/tcp open to your OSSes, MDSes, and any other machines you want to receive metrics from.  You also need to have port 3000 open to your proxy server.
 
