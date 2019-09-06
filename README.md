@@ -181,6 +181,21 @@ pattern = .*
 retentions = 10s:1d,60s:1w,300s:90d
 ```
 
+This configuration file is for the Graphite API:
+
+**/etc/graphite-api.yaml**
+```
+search_index: /opt/graphite/storage/index
+finders:
+  - graphite_api.finders.whisper.WhisperFinder
+functions:
+  - graphite_api.functions.SeriesFunctions
+  - graphite_api.functions.PieFunctions
+whisper:
+  directories:
+    - /opt/graphite/storage/whisper
+```
+
 And these are the configuration files for carbon-c-relay:
 
 **/etc/carbon-c-relay.conf**
