@@ -74,6 +74,16 @@ On the collector box, we're running four carbon-cache processes, each listening 
 
 Lustre generates per-user (or per-job) statistics for every single OST.  In order to generate graphs more efficiently, I've added aggregation rules to generate summary metrics across the OSTs.  In addition, I've added an aggregation rule to generate a summary metric for all MDS operations.
 
+When installing graphite, there are three components that need to be installed- Carbon, Whisper, and Graphite-api.  You do _not_ need to install Graphite-web.  Grafana is a much more full featured graphing engine that takes the place of Graphite-web.  I chose to install all of the packages under the path _/opt/graphite_.  I did the install as follows:
+```
+cd /opt
+virtualenv graphite
+PATH=/opt/graphite/bin:$PATH; export PATH
+pip install https://github.com/graphite-project/whisper/tarball/master
+pip install https://github.com/graphite-project/carbon/tarball/master
+pip install graphite-api
+```
+
 This is the configuration file for the carbon caches- note that only the carbon-cache service needs to be enabled, as carbon-relay and carbon-aggregator are not used.
 
 **/opt/graphite/conf/carbon.conf**
@@ -371,6 +381,9 @@ Hosts sending metrics do not need any inbound ports open, as they are pushing me
 ## Where to Find Stuff
 
 * Telegraf - https://docs.influxdata.com/telegraf
-* Graphite - https://graphite.readthedocs.io/en/latest/index.html
+* Graphite docs- https://graphite.readthedocs.io/en/latest/index.html
+  * Carbon - https://github.com/graphite-project/carbon.git
+  * Whisper - https://github.com/graphite-project/whisper.git
+  * Graphite-api - https://github.com/brutasse/graphite-api
 * carbon-c-relay - https://github.com/grobian/carbon-c-relay
 * Grafana - https://grafana.com/
