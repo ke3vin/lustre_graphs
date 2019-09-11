@@ -47,6 +47,7 @@ ignore_fs = ["tmpfs", "devtmpfs", "devfs", "overlay", "aufs", "squashfs"]
 [[inputs.processes]]
 [[inputs.swap]]
 [[inputs.system]]
+# Collect Infiniband metrics
 [[inputs.exec]]
 commands = [
 "/etc/telegraf/scripts/collect_ib"
@@ -57,6 +58,20 @@ data_format = "json"
 tag_keys = [
 "device",
 "port"
+]
+# Collect Lustre Quota metrics
+[[inputs.exec]]
+interval = "1m"
+commands = [
+  "/etc/telegraf/scripts/lquota"
+]
+timeout = "1s"
+name_suffix = "_lquota"
+data_format = "json"
+tag_keys = [
+  "class",
+  "id",
+  "target"
 ]
 [[inputs.ipmi_sensor]]
 [[inputs.lustre2]]
@@ -83,6 +98,7 @@ pip install https://github.com/graphite-project/whisper/tarball/master
 pip install https://github.com/graphite-project/carbon/tarball/master
 pip install graphite-api
 ```
+You'll also need to install a plugin for graphite found here in the graphite-plugin directory.  This adds a few functions to allow the translation of UIDs to usernames for the quota graphs, and to do the math for the 'change in space used' and 'change in file counts' bar graphs.  Copy the _umd_ directory in its entirety to _/opt/graphite/lib/python2.7/site-packages/_  (or under whatever alternate path you installed graphite.)  If you call it something other than _umd_, make sure to change _/etc/graphite_api.yaml_ to reflect the new location.
 
 This is the configuration file for the carbon caches- note that only the carbon-cache service needs to be enabled, as carbon-relay and carbon-aggregator are not used.
 
@@ -201,6 +217,7 @@ finders:
 functions:
   - graphite_api.functions.SeriesFunctions
   - graphite_api.functions.PieFunctions
+  - umd.graphite_functions.SeriesFunctions
 whisper:
   directories:
     - /opt/graphite/storage/whisper
