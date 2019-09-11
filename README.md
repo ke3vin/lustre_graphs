@@ -1,5 +1,5 @@
 # lustre_graphs
-Docs and Files for graphing Lustre statistics with Grafana
+Docs and files for graphing Lustre statistics with Grafana
 
 ## Overview
 
@@ -9,9 +9,9 @@ Lustre statistics are collected with the Telegraf package, which runs on all of 
 
 As distributed from InfluxData, telegraf already includes an agent that will collect Lustre server metrics.  However, that agent does not collect jobstats metrics in a particularly friendly format, so I've made some local changes which are necessary if you want to be able to correlate Lustre activity to particular users or HPC jobs.
 
-The changes to telegraf are located here: https://gitlab.umd.edu/acigs-tools/telegraf.  The only changes made are to the telegraf input plugin.
+The changes to telegraf are located in the file *telegraf_lustre2_patch*.  The only changes made are to the telegraf input plugin.
 
-The configuration file for telegraf on each Lustre server appears as follows (comments stripped out for brevity).  The relevant sections of interest are outputs and lustre2.
+The configuration file for telegraf on each Lustre server appears as follows (comments stripped out for brevity).  The relevant sections of interest are *outputs* and *lustre2*.
 
 **/etc/telegraf/telegraf.conf**
 ```
@@ -64,15 +64,25 @@ interval = "30s"
 [[inputs.net]]
 ```
 
-# Graphite
+## Graphite
 
-Graphite receives and stores the metrics collected by telegraf.  It is highly recommended that Graphite (and Grafana) run on a separate server, and that the filesystem where metrics are stored reside on a flash drive.  Depending on how many Lustre servers you have, Lustre generates a LOT of metrics and the backend server must be capable of storing them all as they arrive.  We are currently running the metric collection on a node with two E5-2670 processors (16 cores total), with the metric storage on an Intel 1TB SSD.  Collecting metrics for 12 OSSes and 1 MDS, and a handful of non-Lustre hosts is using about 320GB of storage.  The SSD is mounted as /opt/graphite/storage.
+Graphite receives and stores the metrics collected by telegraf.  It is highly recommended that Graphite (and Grafana) run on a separate server, and that the filesystem where metrics are stored reside on an SSD or NVMe flash drive.  Depending on how many Lustre servers you have, Lustre generates a LOT of metrics and the backend server must be capable of storing them all as they arrive.  We are currently running the metric collection on a node with two E5-2670 processors (16 cores total), with the metric storage on an Intel 1TB SSD.  Collecting metrics for 12 OSSes and 1 MDS, and a handful of non-Lustre hosts is using about 320GB of storage.  The SSD is mounted as */opt/graphite/storage*.
 
-Graphite can be configured to run a few different processes, carbon-cache is the one we're using, and it's responsible for collecting the metrics and writing them to disk.  Graphite also comes with carbon-relay and carbon-aggregator.  The relay receives metrics and can redistribute them to multiple aggregators or caches.  The aggregator can combine multiple input metrics to generate summary metrics.  Those two tools as provided with Graphite are both written in python, and in practice I've found those too slow to keep up with the volume of metrics necessary.  Instead, we're using a third tool called carbon-c-relay which is an integrated relay and aggregation engine, that's written in C for much improved performance.
+Graphite can be configured to run a few different processes, *carbon-cache* is the one we're using, and it's responsible for collecting the metrics and writing them to disk.  Graphite also comes with *carbon-relay* and *carbon-aggregator*.  The relay receives metrics and can redistribute them to multiple aggregators or caches.  The aggregator can combine multiple input metrics to generate summary metrics.  Those two tools as provided with Graphite are both written in python, and in practice I've found those too slow to keep up with the volume of metrics necessary.  Instead, we're using a third tool called *carbon-c-relay* which is an integrated relay and aggregation engine, that's written in C for much improved performance.
 
-On the collector box, we're running four carbon-cache processes, each listening on its own port.  Carbon-c-relay receives metrics from the clients, does some aggregation, and hands those metrics off to the carbon-cache processes which then write the metrics to disk.
+On the collector box, we're running four carbon-cache processes, each listening on its own port.  Carbon-c-relay receives metrics from the clients, does some aggregation, and hands those metrics off to the *carbon-cache* processes which then write the metrics to disk.
 
 Lustre generates per-user (or per-job) statistics for every single OST.  In order to generate graphs more efficiently, I've added aggregation rules to generate summary metrics across the OSTs.  In addition, I've added an aggregation rule to generate a summary metric for all MDS operations.
+
+When installing graphite, there are three components that need to be installed- Carbon, Whisper, and Graphite-api.  You do _not_ need to install Graphite-web.  Grafana is a much more full featured graphing engine that takes the place of Graphite-web.  I chose to install all of the packages under the path _/opt/graphite_.  I did the install as follows:
+```
+cd /opt
+virtualenv graphite
+PATH=/opt/graphite/bin:$PATH; export PATH
+pip install https://github.com/graphite-project/whisper/tarball/master
+pip install https://github.com/graphite-project/carbon/tarball/master
+pip install graphite-api
+```
 
 This is the configuration file for the carbon caches- note that only the carbon-cache service needs to be enabled, as carbon-relay and carbon-aggregator are not used.
 
@@ -181,6 +191,21 @@ pattern = .*
 retentions = 10s:1d,60s:1w,300s:90d
 ```
 
+This configuration file is for the Graphite API:
+
+**/etc/graphite-api.yaml**
+```
+search_index: /opt/graphite/storage/index
+finders:
+  - graphite_api.finders.whisper.WhisperFinder
+functions:
+  - graphite_api.functions.SeriesFunctions
+  - graphite_api.functions.PieFunctions
+whisper:
+  directories:
+    - /opt/graphite/storage/whisper
+```
+
 And these are the configuration files for carbon-c-relay:
 
 **/etc/carbon-c-relay.conf**
@@ -221,10 +246,13 @@ This increases the size of the metric batch sizes and receive queues
 ARGS="-p 2003 -w 4 -b 25000 -q 250000"
 ```
 
-# Grafana
+## Grafana
 
 Grafana is responsible for actually graphing the metrics.  It is a wsgi process that sits behind a web server (Apache).  It needs to have access to the metric storage and therefore must run on the same host as Graphite.  By default Grafana has its own authentication mechanisms, but it's somewhat limited.  I've chosen to disable the built-in authentication and instead use the much richer Apache authentication mechanism so that we can use our Kerberos authentication.  In our configuration, the server that hosts Grafana and Graphite is on a private network.  The apache server runs on a publicly accessible server, and acts as a reverse proxy to connect user requests to Grafana.
 
+You should probably install Grafana using its defaults first, and set up the admin user before playing with the proxy and alternate authentication.  When you're ready to enable alternate authentication, create a user for yourself that matches your external username, and make that user an administrator.  Then enable the external authentication.
+
+Once you've got Grafana installed and working, you'll need to import the dashboards included here to complete your collection of Lustre graphs. Some will probably need tweaking to set your local site name, and relative URLs.
 
 Here are relevant configuration files:
 
@@ -336,12 +364,13 @@ If you are using selinux on the proxy server you'll need to allow httpd to make 
 /usr/sbin/setsebool -P httpd_can_network_connect 1
 ```
 
-# Selinux
+## Selinux
 
 The server running Graphite/Grafana works fine with selinux in enforcing mode, with no changes necessary.
 
 The proxy server works fine with selinux in enforcing mode as well, with the one change mentioned above.
-Firewall Rules
+
+## Firewall Rules
 
 On the Graphite/Grafana server you need to have port 2003/tcp open to your OSSes, MDSes, and any other machines you want to receive metrics from.  You also need to have port 3000 open to your proxy server.
 
@@ -349,9 +378,12 @@ On the proxy server you need to have https (443/tcp) open to whatever machines y
 
 Hosts sending metrics do not need any inbound ports open, as they are pushing metrics.
 
-# Where to Find Stuff
+## Where to Find Stuff
 
 * Telegraf - https://docs.influxdata.com/telegraf
-* Graphite - https://graphite.readthedocs.io/en/latest/index.html
+* Graphite docs- https://graphite.readthedocs.io/en/latest/index.html
+  * Carbon - https://github.com/graphite-project/carbon.git
+  * Whisper - https://github.com/graphite-project/whisper.git
+  * Graphite-api - https://github.com/brutasse/graphite-api
 * carbon-c-relay - https://github.com/grobian/carbon-c-relay
 * Grafana - https://grafana.com/
