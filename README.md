@@ -193,8 +193,14 @@ retentions = 60:90d
 [lustre_space]
 pattern = ^lustre\.space\.
 retentions = 60s:7d,300s:90d
+[lustre_space2]
+pattern = .*\.exec_lquota\..*
+retentions = 60s:7d,300s:90d
 [lustre_files]
 pattern = ^lustre\.files\.
+retentions = 60s:7d,300s:90d
+[lustre_quota]
+pattern = ^lustre\.quota\.
 retentions = 60s:7d,300s:90d
 [jobstats_agg]
 pattern = ^lustre\.usage\.
@@ -248,6 +254,14 @@ aggregate
   expire after 45 seconds
   compute sum write to
     lustre.usage.\1.mds_aggr
+  send to graphite
+  ;
+aggregate
+        ^(oss|mds)[^.]+\.exec_lquota\.([^.]+)\.([^.]+)\.[^.]+\.([^.]+)$
+  every 60 seconds
+  expire after 90 seconds
+  compute sum write to
+    lustre.quota.\1.\2.\3.\4
   send to graphite
   ;
 match *
