@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# lquota- collect Lustre quota statistics for telegraf/graphite
+# 9/5/19 kevin
+
+echo "["
+if [ -d /proc/fs/lustre ]; then
+    group=0
+    for targetpath in /proc/fs/lustre/osd-*/*T*; do
+        target=${targetpath##*/}
+        quotapath=${targetpath}/quota_slave
+        if [ $group -ne 0 ]; then
+            echo ","
+        fi
+        awk -v target=$target -F'[, ]+' '/id:/ {ID=$NF} /usage:/ { print (NR>3?",":"") "{\n    \"target\": \"" target "\",\n    \"class\": \"user\",\n    \"id\": " ID ",\n    \"inodes\": " $5 ",\n    \"kbytes\": " $7 "\n}" }' ${quotapath}/acct_user
+        awk -v target=$target -F'[, ]+' '/id:/ {ID=$NF} /usage:/ { print ",{\n    \"target\": \"" target "\",\n    \"class\": \"group\",\n    \"id\": " ID ",\n    \"inodes\": " $5 ",\n    \"kbytes\": " $7 "\n}" }' ${quotapath}/acct_group
+        group=$(($group+1))
+    done 
+fi
+echo "]"
+

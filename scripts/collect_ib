@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# collect_ib- collect IB statistics for telegraf/graphite
+# 5/25/18 kevin
+
+echo "["
+group=0
+needreset=0
+for devicepath in /sys/class/infiniband/*; do
+    device=${devicepath##*/}
+    # Handle mellanox devices only for now
+    if [[ ! $device =~ mlx ]]; then
+	continue
+    fi
+
+    for portpath in ${devicepath}/ports/*; do
+	port=${portpath##*/}
+	if [ "$group" -ne 0 ]; then
+	    echo ","
+	fi
+	echo "    {"
+	echo "        \"device\": \"${device}\","
+	echo "        \"port\": \"${port}\","
+	line=0
+	for counterpath in ${portpath}/counters/*; do
+	    counter=${counterpath##*/}
+	    if [ "$line" -ne 0 ]; then
+		echo ","
+	    fi
+	    read data < $counterpath
+	    if [ -n "$data" ]; then
+		# Hack. Handle counters that don't wrap and don't reset
+		if [ $data -eq 4294967295 ]; then
+		    needreset=1
+		fi
+		# These counters are per-lane and need to be multiplied by
+		# the number of lanes.  This will break if the link width
+		# is ever something other than four.
+		if [ "$counter" == "port_rcv_data" -o "$counter" == "port_xmit_data" ]; then
+		    data=$(($data*4))
+		fi
+		echo -n "        \"$counter\": $data"
+		line=$(($line+1))
+	    fi
+	done
+	echo
+	echo -n "    }"
+	group=$(($group+1))
+    done
+done
+echo
+echo "]"
+
+# Sorry, this is evil.  Some of the older Mellanox cards don't wrap
+# like they say they do.
+if [ $needreset -eq 1 ]; then
+    sudo /usr/sbin/perfquery -R
+fi
+
