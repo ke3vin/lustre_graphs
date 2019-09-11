@@ -7,9 +7,7 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
         "name": "Annotations & Alerts",
-        "showIn": 0,
         "type": "dashboard"
       }
     ]
@@ -17,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 17,
-  "iteration": 1568211304360,
+  "id": 11,
+  "iteration": 1568211035116,
   "links": [],
   "panels": [
     {
@@ -28,14 +26,14 @@
       "dashLength": 10,
       "dashes": false,
       "fill": 1,
-      "fillGradient": 2,
+      "fillGradient": 3,
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 0
       },
-      "id": 6,
+      "id": 9,
       "legend": {
         "avg": false,
         "current": false,
@@ -47,29 +45,52 @@
       },
       "lines": true,
       "linewidth": 1,
+      "links": [],
       "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
       "percentage": false,
-      "pointradius": 2,
+      "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "repeat": "lustre_users",
+      "repeatDirection": "v",
+      "scopedVars": {
+        "lustre_users": {
+          "selected": true,
+          "text": "0",
+          "value": "0"
+        }
+      },
+      "seriesOverrides": [
+        {
+          "alias": "/file count/",
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
+          "refCount": 0,
           "refId": "A",
-          "target": "aliasSub(groupByNode(perSecond([[oss]]_*.lustre2.*OST*.*_bytes), 3, 'sum'), '^([^_]+).*$', '\\1')"
+          "target": "alias(lustre.quota.oss.user.$lustre_users.kbytes, 'space used')",
+          "textEditor": false
+        },
+        {
+          "refCount": 0,
+          "refId": "B",
+          "target": "alias(lustre.quota.mds.user.$lustre_users.inodes, 'file count')",
+          "textEditor": false
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "$oss Throughput",
+      "title": "Lustre Usage by User $lustre_users",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -85,188 +106,21 @@
       },
       "yaxes": [
         {
-          "format": "bytes",
-          "label": "Bytes",
+          "decimals": null,
+          "format": "kbytes",
+          "label": "Space Used (bytes)",
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
+          "decimals": 0,
           "format": "short",
-          "label": null,
+          "label": "File Count",
           "logBase": 1,
           "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "fill": 1,
-      "fillGradient": 2,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 4,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "refId": "A",
-          "target": "aliasSub([[oss]]_*.system.load1, '^([^_]+)_.*$', '\\1')"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "$oss 1-minute Load",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "cacheTimeout": "",
-      "dashLength": 10,
-      "dashes": false,
-      "fill": 1,
-      "fillGradient": 2,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
-      },
-      "id": 12,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "refId": "A",
-          "target": "groupByNode(perSecond([[oss]]_*.lustre2.*OST*.*_bytes), 2, 'sum')"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "$oss Throughput by OST",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "bytes",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         }
       ],
@@ -284,12 +138,12 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 0
       },
-      "id": 10,
+      "id": 3,
       "legend": {
         "avg": false,
         "current": false,
@@ -301,29 +155,52 @@
       },
       "lines": true,
       "linewidth": 1,
+      "links": [],
       "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
       "percentage": false,
-      "pointradius": 2,
+      "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "repeat": "lustre_groups",
+      "repeatDirection": "v",
+      "scopedVars": {
+        "lustre_groups": {
+          "selected": true,
+          "text": "0",
+          "value": "0"
+        }
+      },
+      "seriesOverrides": [
+        {
+          "alias": "/file count/",
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
+          "refCount": 0,
           "refId": "A",
-          "target": "aliasSub(groupByNode(perSecond([[oss]]_*.lustre2.*OST*.*_calls), 3, 'sum'), '^([^_]+)_.*$', '\\1')"
+          "target": "alias(lustre.quota.oss.group.$lustre_groups.kbytes, 'space used')",
+          "textEditor": false
+        },
+        {
+          "refCount": 0,
+          "refId": "B",
+          "target": "alias(lustre.quota.mds.group.$lustre_groups.inodes, 'file count')",
+          "textEditor": false
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "$oss I/O Calls",
+      "title": "Lustre Usage by Group $lustre_groups",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -339,19 +216,21 @@
       },
       "yaxes": [
         {
-          "format": "short",
-          "label": "Calls/sec",
+          "decimals": null,
+          "format": "kbytes",
+          "label": "Space Used (bytes)",
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
+          "decimals": 0,
           "format": "short",
-          "label": null,
+          "label": "File Count",
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         }
       ],
@@ -366,13 +245,14 @@
       "cacheTimeout": "",
       "dashLength": 10,
       "dashes": false,
+      "description": "Space Usage with minimum offset to zero to show additional detail.",
       "fill": 1,
-      "fillGradient": 2,
+      "fillGradient": 3,
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 9
       },
       "id": 2,
       "legend": {
@@ -386,21 +266,30 @@
       },
       "lines": true,
       "linewidth": 1,
+      "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": [
-          {
-            "targetBlank": true,
-            "title": "Single Job Metrics",
-            "url": "/graphs/d/000000007/single-job-metrics?orgId=1&var-jobid=${__series_name}&${__url_time_range}"
-          }
-        ]
+        "dataLinks": []
       },
       "percentage": false,
-      "pointradius": 2,
+      "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "repeat": "lustre_users",
+      "repeatDirection": "v",
+      "scopedVars": {
+        "lustre_users": {
+          "selected": true,
+          "text": "0",
+          "value": "0"
+        }
+      },
+      "seriesOverrides": [
+        {
+          "alias": "/file count/",
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
@@ -408,16 +297,23 @@
         {
           "refCount": 0,
           "refId": "A",
-          "target": "highestMax(groupByNode(perSecond([[oss]]_*.lustre2.*.*OST*.jobstats_*_bytes), 2, 'sum'), $topnum)"
+          "target": "alias(offsetToZero(lustre.quota.oss.user.$lustre_users.kbytes), 'space used')",
+          "textEditor": true
+        },
+        {
+          "refCount": 0,
+          "refId": "B",
+          "target": "alias(offsetToZero(lustre.quota.mds.user.$lustre_users.inodes), 'file count')",
+          "textEditor": true
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "$oss Throughput by Job",
+      "title": "Lustre Usage Delta by User $lustre_users",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -431,8 +327,215 @@
       },
       "yaxes": [
         {
-          "format": "bytes",
-          "label": "Bytes/sec (read+write)",
+          "decimals": null,
+          "format": "kbytes",
+          "label": "Space Used (bytes)",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": 0,
+          "format": "short",
+          "label": "File Count",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "cacheTimeout": "",
+      "dashLength": 10,
+      "dashes": false,
+      "description": "Space Usage with minimum offset to zero to show additional detail.",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 10,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "repeat": "lustre_groups",
+      "repeatDirection": "v",
+      "scopedVars": {
+        "lustre_groups": {
+          "selected": true,
+          "text": "0",
+          "value": "0"
+        }
+      },
+      "seriesOverrides": [
+        {
+          "alias": "/file count/",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "refCount": 0,
+          "refId": "A",
+          "target": "alias(offsetToZero(lustre.quota.oss.group.$lustre_groups.kbytes), 'space used')",
+          "textEditor": true
+        },
+        {
+          "refCount": 0,
+          "refId": "B",
+          "target": "alias(offsetToZero(lustre.quota.mds.group.$lustre_groups.inodes), 'file count')",
+          "textEditor": true
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Lustre Usage Delta by Group $lustre_groups",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "kbytes",
+          "label": "Space Used (bytes)",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": 0,
+          "format": "short",
+          "label": "File Count",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "cacheTimeout": "",
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "fillGradient": 5,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 7,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "repeat": "lustre_users",
+      "repeatDirection": "v",
+      "scopedVars": {
+        "lustre_users": {
+          "selected": true,
+          "text": "0",
+          "value": "0"
+        }
+      },
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "refId": "A",
+          "target": "aliasSub(groupByNode(oss*.exec_lquota.user.$lustre_users.*.kbytes, 0, 'sum'), '^(oss[^_]+)_.*$', '\\1')"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Usage by OSS for User $lustre_users (stacked)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "kbytes",
+          "label": "Space Used (bytes)",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -455,16 +558,15 @@
     {
       "aliasColors": {},
       "bars": false,
-      "cacheTimeout": "",
       "dashLength": 10,
       "dashes": false,
       "fill": 1,
-      "fillGradient": 0,
+      "fillGradient": 4,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 18
       },
       "id": 8,
       "legend": {
@@ -486,30 +588,33 @@
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
+      "repeat": "lustre_groups",
+      "repeatDirection": "v",
+      "scopedVars": {
+        "lustre_groups": {
+          "selected": true,
+          "text": "0",
+          "value": "0"
+        }
+      },
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "refCount": 0,
           "refId": "A",
-          "target": "alias(perSecond([[oss]]_*.exec_collect_ib.mlx4_0.1.port_rcv_data), 'receive')"
-        },
-        {
-          "refCount": 0,
-          "refId": "B",
-          "target": "alias(perSecond([[oss]]_*.exec_collect_ib.mlx4_0.1.port_xmit_data), 'transmit')"
+          "target": "aliasSub(groupByNode(oss*.exec_lquota.group.$lustre_groups.*.kbytes, 0, 'sum'), '^(oss[^_]+)_.*$', '\\1')"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "$oss Infiniband Traffic",
+      "title": "Usage by OSS for Group $lustre_groups (stacked)",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "type": "graph",
@@ -522,8 +627,8 @@
       },
       "yaxes": [
         {
-          "format": "bytes",
-          "label": "Bytes/sec",
+          "format": "kbytes",
+          "label": "Space Used (bytes)",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -544,7 +649,7 @@
       }
     }
   ],
-  "refresh": "1m",
+  "refresh": "5s",
   "schemaVersion": 19,
   "style": "dark",
   "tags": [
@@ -556,84 +661,23 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "oss6",
-          "value": "oss6"
+          "selected": false,
+          "text": "0",
+          "value": "0"
         },
         "datasource": "DT2 metrics (graphite)",
-        "definition": "oss*",
+        "definition": "oss*.exec_lquota.user.*",
         "hide": 0,
         "includeAll": false,
         "label": null,
-        "multi": false,
-        "name": "oss",
-        "options": [
-          {
-            "selected": false,
-            "text": "oss10",
-            "value": "oss10"
-          },
-          {
-            "selected": false,
-            "text": "oss11",
-            "value": "oss11"
-          },
-          {
-            "selected": false,
-            "text": "oss12",
-            "value": "oss12"
-          },
-          {
-            "selected": false,
-            "text": "oss1",
-            "value": "oss1"
-          },
-          {
-            "selected": false,
-            "text": "oss2",
-            "value": "oss2"
-          },
-          {
-            "selected": false,
-            "text": "oss3",
-            "value": "oss3"
-          },
-          {
-            "selected": false,
-            "text": "oss4",
-            "value": "oss4"
-          },
-          {
-            "selected": false,
-            "text": "oss5",
-            "value": "oss5"
-          },
-          {
-            "selected": true,
-            "text": "oss6",
-            "value": "oss6"
-          },
-          {
-            "selected": false,
-            "text": "oss7",
-            "value": "oss7"
-          },
-          {
-            "selected": false,
-            "text": "oss8",
-            "value": "oss8"
-          },
-          {
-            "selected": false,
-            "text": "oss9",
-            "value": "oss9"
-          }
-        ],
-        "query": "oss*",
-        "refresh": 0,
-        "regex": "/(oss\\d+)_/",
+        "multi": true,
+        "name": "lustre_users",
+        "options": [],
+        "query": "oss*.exec_lquota.user.*",
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 3,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -643,45 +687,28 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "10",
-          "value": "10"
+          "selected": false,
+          "text": "0",
+          "value": "0"
         },
+        "datasource": "DT2 metrics (graphite)",
+        "definition": "oss*.exec_lquota.group.*",
         "hide": 0,
         "includeAll": false,
-        "label": "Number of Jobs to Show",
-        "multi": false,
-        "name": "topnum",
-        "options": [
-          {
-            "selected": false,
-            "text": "1",
-            "value": "1"
-          },
-          {
-            "selected": false,
-            "text": "5",
-            "value": "5"
-          },
-          {
-            "selected": true,
-            "text": "10",
-            "value": "10"
-          },
-          {
-            "selected": false,
-            "text": "15",
-            "value": "15"
-          },
-          {
-            "selected": false,
-            "text": "20",
-            "value": "20"
-          }
-        ],
-        "query": "1,5,10,15,20",
+        "label": null,
+        "multi": true,
+        "name": "lustre_groups",
+        "options": [],
+        "query": "oss*.exec_lquota.group.*",
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": false,
-        "type": "custom"
+        "sort": 3,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -702,10 +729,21 @@
       "1h",
       "2h",
       "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
     ]
   },
   "timezone": "",
-  "title": "Single OSS Detail",
-  "uid": "qMA-kCdWz",
-  "version": 20
+  "title": "DT2 Lustre Space by User and Group",
+  "uid": "G9l8VDvik",
+  "version": 41
 }

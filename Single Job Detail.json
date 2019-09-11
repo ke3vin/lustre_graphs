@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 7,
-  "iteration": 1567624519889,
+  "iteration": 1568211203703,
   "links": [],
   "panels": [
     {
@@ -223,8 +223,11 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "13077023",
-          "value": "13077023"
+          "tags": [],
+          "text": "13220284",
+          "value": [
+            "13220284"
+          ]
         },
         "datasource": "DT2 metrics (graphite)",
         "definition": "",
@@ -248,10 +251,11 @@
     ]
   },
   "time": {
-    "from": "now-3h",
-    "to": "now"
+    "from": "now-1h",
+    "to": "now-1m"
   },
   "timepicker": {
+    "nowDelay": "1m",
     "refresh_intervals": [
       "5s",
       "10s",
@@ -279,5 +283,5 @@
   "timezone": "",
   "title": "Single Job Detail",
   "uid": "000000007",
-  "version": 14
+  "version": 16
 }
